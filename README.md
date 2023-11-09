@@ -18,9 +18,6 @@ Current plugin names are as follows:
 
 If i forget to update this file, the plugin name can be found in the `bundler.toml` file in each of the folders.
 
-## Note
-These plugins are not production-ready. They are written as a side-project to learn how DSP effects work. I test my plugins myself and there is always a chance that with certain parameter combinations the plugin will start outputting constant DC signal or very loud signal, because of an infinite feedback loop or simply a mistake in the code. If such a thing happens, open an issue and describe the problem and parameter values that cause problems.
-
 Build files will be in the `target/bundled/[plugin-name.vs3]` folder. You can then find the proper version of .vst3 file there and copy it to your VST3 plugin folder.
 
 On Windows the vst3 plugin folder is usually `C:\Program Files\Common Files\VST3` or `C:\Program Files (x86)\Common Files\VST3`.
@@ -49,6 +46,9 @@ Flanger/Vibrato plugin. To achieve  vibrato effect set the feedback to 0%, wet t
 
 ### Phase Disperser
 Multiple Allpass filters in series create a phase dispersion effect. A very simplified description is that through phase shifting it delays lower frequencies creating the unique "disperser" sound.
+
+## Note
+These plugins are not production-ready. They are written as a side-project to learn how DSP effects work. I test my plugins myself and there is always a chance that with certain parameter combinations the plugin will start outputting constant DC signal or very loud signal, because of an infinite feedback loop or simply a mistake in the code. If such a thing happens, open an issue and describe the problem and parameter values that cause problems.
 
 ## License
 The MIT License (MIT)
