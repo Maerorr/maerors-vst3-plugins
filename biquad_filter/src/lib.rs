@@ -218,38 +218,6 @@ impl Plugin for FilterPlugin {
             }
         }
 
-        // In current configuration this function iterates as follows:
-        // 1. outer loop iterates block-size times
-        // 2. inner loop iterates channel-size times. 
-
-        // for (i, channel_samples) in buffer.iter_samples().enumerate() {
-        //     // Smoothing is optionally built into the parameters themselves
-        //     // let gain = self.params.gain.smoothed.next();
-        //     let filter_type = self.params.filter_type.value();
-        //     let cutoff = self.params.cutoff.smoothed.next();
-        //     let mut resonance = self.params.resonance.smoothed.next();
-        //     let gain = self.params.gain.smoothed.next();
-
-        //     if filter_type != self.prev_filter_type {
-        //         self.prev_filter_type = filter_type;
-        //         self.filter.reset_filter();
-        //     }
-
-        //     if filter_type == FilterType::SecondOrderAllPass {
-        //         resonance = resonance.clamp(1.0, 1000.0)
-        //     }
-
-        //     self.filter.coefficients(filter_type, cutoff, resonance, gain);
-
-        //     for (num, sample) in channel_samples.into_iter().enumerate() {
-        //         if num == 0 {
-        //             *sample = self.filter.process_left(*sample)
-        //         } else {
-        //             *sample = self.filter.process_right(*sample)
-        //         }
-        //     }
-        // }
-
         ProcessStatus::Normal
     }
 
