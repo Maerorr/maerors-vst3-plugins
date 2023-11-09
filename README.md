@@ -2,6 +2,10 @@
 
 In this repository you can find all of my VST3 plugins written in Rust using the nih-plug framework.
 
+## TODO List
+- [ ] Create a proper GUI for all plugins instead of using the out-of-the-box Vizia look.
+- [ ] Add more plugins.
+
 ## Building
 After installing [Rust](https://rustup.rs/), you can compile the plugins as follows:
 
