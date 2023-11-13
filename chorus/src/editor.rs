@@ -16,8 +16,8 @@ use self::param_knob::ParamKnob;
 
 mod param_knob;
 
-pub const ROBOTO_REGULAR_TTF: &[u8] = include_bytes!("../res/Comfortaa-Light.ttf");
-pub const ROBOTO: &str = "Comfortaa";
+pub const COMFORTAA_LIGHT_TTF: &[u8] = include_bytes!("../res/Comfortaa-Light.ttf");
+pub const COMFORTAA: &str = "Comfortaa";
 
 const STYLE: &str = r#"
 .param_knob {
@@ -75,10 +75,9 @@ pub(crate) fn create(
 ) -> Option<Box<dyn Editor>> {
     create_vizia_editor(editor_state, 
         ViziaTheming::Custom, move |cx, _| {
-            //assets::register_noto_sans_light(cx);
-            //assets::register_noto_sans_thin(cx);
-            cx.add_fonts_mem(&[ROBOTO_REGULAR_TTF]);
-            cx.set_default_font(&[ROBOTO]);
+
+            cx.add_fonts_mem(&[COMFORTAA_LIGHT_TTF]);
+            cx.set_default_font(&[COMFORTAA]);
 
             cx.add_theme(STYLE);
             
@@ -89,7 +88,7 @@ pub(crate) fn create(
             ResizeHandle::new(cx);
             VStack::new(cx, |cx| {
                 Label::new(cx, "MAEROR'S CHORUS")
-                .font_family(vec![FamilyOwned::Name(String::from(ROBOTO))])
+                .font_family(vec![FamilyOwned::Name(String::from(COMFORTAA))])
                 .font_size(24.0)
                 .height(Pixels(75.0))
                 .child_top(Stretch(1.0))

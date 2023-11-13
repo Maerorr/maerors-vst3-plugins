@@ -39,11 +39,11 @@ param-button {
   transition: background-color 0.1 0;
 }
 param-button:hover {
-  background-color: #d0d0d080;
+  background-color: #564D63;
   transition: background-color 0.1 0;
 }
 param-button:checked {
-  background-color: #d0d0d0;
+  background-color: #7A4BBE;
   transition: background-color 0.1 0;
 }
 

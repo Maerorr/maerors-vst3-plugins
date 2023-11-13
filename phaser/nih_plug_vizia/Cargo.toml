@@ -8,7 +8,7 @@ license = "ISC"
 description = "An adapter to use VIZIA GUIs with NIH-plug"
 
 [dependencies]
-nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git" }
+nih_plug = { git = "https://github.com/robbert-vdh/nih-plug" }
 nih_plug_assets = { git = "https://github.com/robbert-vdh/nih_plug_assets.git" }
 
 baseview = { git = "https://github.com/RustAudio/baseview.git", rev = "7001c2521fa1a439a01967cb881b411cd75d9ee0" }

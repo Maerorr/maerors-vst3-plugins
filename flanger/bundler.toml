@@ -4,5 +4,5 @@
 # [package_name]
 # name = "Human Readable Plugin Name"  # defaults to <package_name>
 
-[flanger]
-name = "flanger"
+[maeror_flanger]
+name = "Maeror's Flanger"
