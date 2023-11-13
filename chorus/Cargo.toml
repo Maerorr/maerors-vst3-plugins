@@ -1,5 +1,5 @@
 [package]
-name = "chorus"
+name = "maeror_chorus"
 version = "0.1.0"
 edition = "2021"
 authors = ["236587&236598"]
@@ -11,18 +11,17 @@ description = "a simple chorus"
 members = ["xtask"]
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "lib"]
 
 [dependencies]
 # Remove the `assert_process_allocs` feature to allow allocations on the audio
 # thread in debug builds.
-nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", features = ["assert_process_allocs"] }
+nih_plug = { git = "https://github.com/robbert-vdh/nih-plug", features = ["assert_process_allocs", "standalone"] }
 rand = "0.8.5"
 # Uncomment the below line to disable the on-by-default VST3 feature to remove
 # the GPL compatibility requirement
 # nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", default_features = false, features = ["assert_process_allocs"] }
 nih_plug_vizia = { path = "nih_plug_vizia" }
-
 
 [profile.release]
 lto = "thin"

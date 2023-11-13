@@ -23,7 +23,6 @@ rand = "0.8.5"
 # nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", default_features = false, features = ["assert_process_allocs"] }
 nih_plug_vizia = { path = "nih_plug_vizia" }
 
-
 [profile.release]
 lto = "thin"
 strip = "symbols"

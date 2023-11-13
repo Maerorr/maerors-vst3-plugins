@@ -14,7 +14,7 @@ mod phaser;
 
 const MAX_BLOCK_SIZE: usize = 64;
 
-struct PhaserPlugin {
+pub struct PhaserPlugin {
     params: Arc<PhaserPluginParams>,
     phaser: phaser::Phaser,
     output_hpf: filter::BiquadFilter,
@@ -22,7 +22,7 @@ struct PhaserPlugin {
 }
 
 #[derive(Params)]
-struct PhaserPluginParams {
+pub struct PhaserPluginParams {
     #[persist = "editor-state"]
     editor_state: Arc<ViziaState>,
 
@@ -97,11 +97,11 @@ impl Default for PhaserPluginParams {
 }
 
 impl Plugin for PhaserPlugin {
-    const NAME: &'static str = "tsk phaser";
-    const VENDOR: &'static str = "236587 & 236598";
-    const URL: &'static str = "none";
+    const NAME: &'static str = "Maeror's Phaser";
+    const VENDOR: &'static str = "Hubert Łabuda";
+    const URL: &'static str = "https://www.linkedin.com/in/hubert-%C5%82abuda/";
     const EMAIL: &'static str = "none";
-    const VERSION: &'static str = "test";
+    const VERSION: &'static str = "none";
 
     // The first audio IO layout is used as the default. The other layouts may be selected either
     // explicitly or automatically by the host or the user depending on the plugin API/backend.
@@ -209,7 +209,7 @@ impl ClapPlugin for PhaserPlugin {
 }
 
 impl Vst3Plugin for PhaserPlugin {
-    const VST3_CLASS_ID: [u8; 16] = *b"tsk__PhaserRvdH.";
+    const VST3_CLASS_ID: [u8; 16] = *b"maeror____phaser";
 
     // And also don't forget to change these categories
     const VST3_SUBCATEGORIES: &'static [Vst3SubCategory] =

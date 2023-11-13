@@ -70,11 +70,11 @@ impl Default for PluginParams {
 
 impl Plugin for EffectPlugin {
     const NAME: &'static str = "Maeror's Phase Disperser";
-    const VENDOR: &'static str = "Maeror";
-    const URL: &'static str = "";
+    const VENDOR: &'static str = "Hubert Łabuda";
+    const URL: &'static str = "https://www.linkedin.com/in/hubert-%C5%82abuda/";
     const EMAIL: &'static str = "none";
-    const VERSION: &'static str = "0.0.1";
-
+    const VERSION: &'static str = "none";
+    
     // The first audio IO layout is used as the default. The other layouts may be selected either
     // explicitly or automatically by the host or the user depending on the plugin API/backend.
     const AUDIO_IO_LAYOUTS: &'static [AudioIOLayout] = &[

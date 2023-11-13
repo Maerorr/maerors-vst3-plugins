@@ -11,7 +11,7 @@ mod editor;
 mod chorus;
 mod filter;
 
-struct ChorusPlugin {
+pub struct ChorusPlugin {
     params: Arc<ChorusParams>,
     sample_rate: f32,
     chorus: chorus::Chorus,
@@ -36,6 +36,9 @@ struct ChorusParams {
     pub wet: FloatParam,
     #[id = "dry"]
     pub dry: FloatParam,
+
+    #[id = "credits"]
+    pub credits: BoolParam,
 }
 
 impl Default for ChorusPlugin {
@@ -75,7 +78,7 @@ impl Default for ChorusParams {
             .with_value_to_string(formatters::v2s_f32_percentage(1))
             .with_string_to_value(formatters::s2v_f32_percentage()),
             // WET
-            wet: FloatParam::new("Wet", 0.0, FloatRange::Linear { min: 0.0, max: 1.0 })
+            wet: FloatParam::new("Wet", 0.5, FloatRange::Linear { min: 0.0, max: 1.0 })
             .with_unit("%")
             .with_value_to_string(formatters::v2s_f32_percentage(1))
             .with_string_to_value(formatters::s2v_f32_percentage()),
@@ -85,16 +88,19 @@ impl Default for ChorusParams {
             .with_unit("%")
             .with_value_to_string(formatters::v2s_f32_percentage(1))
             .with_string_to_value(formatters::s2v_f32_percentage()),
+
+            // CREDITS
+            credits: BoolParam::new("Credits", false),
         }
     }
 }
 
 impl Plugin for ChorusPlugin {
-    const NAME: &'static str = "tsk_chorus";
-    const VENDOR: &'static str = "236587 & 236598";
-    const URL: &'static str = "none";
+    const NAME: &'static str = "Maeror's Chorus";
+    const VENDOR: &'static str = "Hubert Łabuda";
+    const URL: &'static str = "https://www.linkedin.com/in/hubert-%C5%82abuda/";
     const EMAIL: &'static str = "none";
-    const VERSION: &'static str = "test";
+    const VERSION: &'static str = "none";
 
     // The first audio IO layout is used as the default. The other layouts may be selected either
     // explicitly or automatically by the host or the user depending on the plugin API/backend.
@@ -201,7 +207,7 @@ impl ClapPlugin for ChorusPlugin {
 }
 
 impl Vst3Plugin for ChorusPlugin {
-    const VST3_CLASS_ID: [u8; 16] = *b"tsk__ChorusRvdH.";
+    const VST3_CLASS_ID: [u8; 16] = *b"maeror____Chorus";
 
     // And also don't forget to change these categories
     const VST3_SUBCATEGORIES: &'static [Vst3SubCategory] =

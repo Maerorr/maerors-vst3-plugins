@@ -1,6 +1,9 @@
 # All my VST3 plugins.
 
-In this repository you can find all of my VST3 plugins written in Rust using the nih-plug framework.
+In this repository you can find all of my VST3 plugins written in Rust using the [nih-plug](https://github.com/robbert-vdh/nih-plug) framework and the [Vizia](https://github.com/vizia/vizia) UI library.
+
+### Additional Credits
+Using modified Knob parameter implementations from [this repository](https://github.com/danferns/simple-panner/blob/main/src/editor/param_knob.rs) by [Daniel Fernandes](https://github.com/danferns)
 
 ## TODO List
 - [ ] Create a proper GUI for all plugins instead of using the out-of-the-box Vizia look.

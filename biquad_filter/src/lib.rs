@@ -110,11 +110,11 @@ impl Default for FilterPluginParams {
 }
 
 impl Plugin for FilterPlugin {
-    const NAME: &'static str = "tsk biquad filter";
-    const VENDOR: &'static str = "236587 & 236598";
-    const URL: &'static str = "none";
+    const NAME: &'static str = "Maeror's Filter";
+    const VENDOR: &'static str = "Hubert Łabuda";
+    const URL: &'static str = "https://www.linkedin.com/in/hubert-%C5%82abuda/";
     const EMAIL: &'static str = "none";
-    const VERSION: &'static str = "test";
+    const VERSION: &'static str = "none";
 
     // The first audio IO layout is used as the default. The other layouts may be selected either
     // explicitly or automatically by the host or the user depending on the plugin API/backend.
@@ -240,7 +240,7 @@ impl ClapPlugin for FilterPlugin {
 }
 
 impl Vst3Plugin for FilterPlugin {
-    const VST3_CLASS_ID: [u8; 16] = *b"tsk__FilterRvdH.";
+    const VST3_CLASS_ID: [u8; 16] = *b"maeror_bqdfilter";
 
     // And also don't forget to change these categories
     const VST3_SUBCATEGORIES: &'static [Vst3SubCategory] =
