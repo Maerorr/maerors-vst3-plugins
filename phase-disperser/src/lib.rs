@@ -49,7 +49,7 @@ impl Default for PluginParams {
         Self {
             editor_state: editor::default_state(),
 
-            frequency: FloatParam::new("Frequency", 1000.0, FloatRange::Linear { min: 0.0, max: 15000.0 })
+            frequency: FloatParam::new("Frequency", 1000.0, FloatRange::Linear { min: 500.0, max: 12000.0 })
             .with_value_to_string(formatters::v2s_f32_hz_then_khz(2))
             .with_string_to_value(formatters::s2v_f32_hz_then_khz())
             .with_smoother(SmoothingStyle::Linear(1.0)),
@@ -63,7 +63,7 @@ impl Default for PluginParams {
             .with_value_to_string(formatters::v2s_f32_rounded(2))
             .with_smoother(SmoothingStyle::Linear(1.0)),
             
-            amount: IntParam::new("Amount", 1, IntRange::Linear { min: 1, max: 200 })
+            amount: IntParam::new("Amount", 100, IntRange::Linear { min: 1, max: 200 })
         }
     }
 }
@@ -142,7 +142,7 @@ impl Plugin for EffectPlugin {
             let q = self.params.resonance.smoothed.next();
             let amount = self.params.amount.value();
 
-            self.disperser.set_params(frequency, q, amount as u32);
+            self.disperser.set_params(frequency, q, spread, amount as u32);
             
             for (num, sample) in channel_samples.into_iter().enumerate() {
                 // processing
