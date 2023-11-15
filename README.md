@@ -3,11 +3,7 @@
 In this repository you can find all of my VST3 plugins written in Rust using the [nih-plug](https://github.com/robbert-vdh/nih-plug) framework and the [Vizia](https://github.com/vizia/vizia) UI library.
 
 ### Additional Credits
-Using modified Knob parameter implementations from [this repository](https://github.com/danferns/simple-panner/blob/main/src/editor/param_knob.rs) by [Daniel Fernandes](https://github.com/danferns)
-
-## TODO List
-- [ ] Create a proper GUI for all plugins instead of using the out-of-the-box Vizia look.
-- [ ] Add more plugins.
+Most plugins (all in the future) are using modified `KnobParam` implementations from [this repository](https://github.com/danferns/simple-panner/blob/main/src/editor/param_knob.rs) by [Daniel Fernandes](https://github.com/danferns)
 
 ## Building
 After installing [Rust](https://rustup.rs/), you can compile the plugins as follows:
@@ -37,33 +33,38 @@ A simple biquad filter with a first and second order lowpass, highpass and allpa
 <img src="images/biquad.png" alt="biquad" width="400" height="auto">
 
 ### Chorus
-Simple chorus plugin that adds 3 voices to the input signal.
+Simple chorus plugin that adds 3 voices to the input signal using interpolated delay lines.
 
 <img src="images/chorus.png" alt="chorus" width="400" height="auto">
 
 ### Flanger
-Flanger/Vibrato plugin. To achieve  vibrato effect set the feedback to 0%, wet to 100% and dry to 0%.
+Flanger/Vibrato plugin using interpolated delay lines. To achieve vibrato effect set the feedback to 0%, wet to 100% and dry to 0%.
 
 <img src="images/flanger.png" alt="flanger" width="400" height="auto">
 
 ### Phaser
-3-stage stereo phaser plugin.
+3-stage stereo phaser plugin using first order allpass filters.
 
 <img src="images/phaser.png" alt="phaser" width="400" height="auto">
 
 ### Phase Disperser
-Multiple Allpass filters in series create a phase dispersion effect. A very simplified description is that through phase shifting it delays lower frequencies creating the unique "disperser" sound.
+Multiple Allpass filters in series create a phase dispersion effect. A very simplified description is that through phase shifting it delays lower frequencies creating the unique liquid-ish sounding effect.
 
 ## Note
 These plugins are not production-ready. They are written as a side-project to learn how DSP effects work. I test my plugins myself and there is always a chance that with certain parameter combinations the plugin will start outputting constant DC signal or very loud signal, because of an infinite feedback loop or simply a mistake in the code. If such a thing happens, open an issue and describe the problem and parameter values that cause problems.
 
 ## License
-The MIT License (MIT)
+Copyright (C) 2023  Hubert Łabuda
 
-Copyright (c) 2023 Hubert Łabuda
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
