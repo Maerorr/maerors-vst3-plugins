@@ -11,11 +11,36 @@ mod editor;
 mod chorus;
 mod filter;
 
+const MAX_BLOCK_SIZE: usize = 32;
+
+struct ScratchBuffer {
+    rate: [f32; MAX_BLOCK_SIZE],
+    depth: [f32; MAX_BLOCK_SIZE],
+    delay: [f32; MAX_BLOCK_SIZE],
+    feedback: [f32; MAX_BLOCK_SIZE],
+    dry: [f32; MAX_BLOCK_SIZE],
+    wet: [f32; MAX_BLOCK_SIZE],
+}
+
+impl Default for ScratchBuffer {
+    fn default() -> Self {
+        Self {
+            rate: [0.0; MAX_BLOCK_SIZE],
+            depth: [0.0; MAX_BLOCK_SIZE],
+            delay: [0.0; MAX_BLOCK_SIZE],
+            feedback: [0.0; MAX_BLOCK_SIZE],
+            dry: [0.0; MAX_BLOCK_SIZE],
+            wet: [0.0; MAX_BLOCK_SIZE],
+        }
+    }
+}
+
 pub struct ChorusPlugin {
     params: Arc<ChorusParams>,
     sample_rate: f32,
     chorus: chorus::Chorus,
     output_hpf: filter::BiquadFilter,
+    scr_buf: ScratchBuffer,
 }
 
 #[derive(Params)]
@@ -48,6 +73,7 @@ impl Default for ChorusPlugin {
             sample_rate: 44100.0,
             chorus: Chorus::new(44100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
             output_hpf: filter::BiquadFilter::new(),
+            scr_buf: ScratchBuffer::default(),
         }
     }
 }
@@ -59,32 +85,38 @@ impl Default for ChorusParams {
             // implement depth, rate, delay_ms, feedback, wet parameters
             // DEPTH
             depth: FloatParam::new("Depth", 5.0, FloatRange::Linear { min: 0.0, max: 25.0 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("ms")
             .with_value_to_string(formatters::v2s_f32_rounded(2)),
             
             // RATE
             rate: FloatParam::new("Rate", 0.5, FloatRange::Skewed { min: 0.02, max: 10.0, factor: 0.3 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("Hz")
             .with_value_to_string(formatters::v2s_f32_rounded(2)),
 
             // DELAY
             delay_ms: FloatParam::new("Delay", 15.0, FloatRange::Linear { min: 0.1, max: 50.0 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("ms")
             .with_value_to_string(formatters::v2s_f32_rounded(2)),
 
             // FEEDBACK
             feedback: FloatParam::new("Feedback", 0.0, FloatRange::Linear { min: 0.0, max: 0.999 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("%")
             .with_value_to_string(formatters::v2s_f32_percentage(1))
             .with_string_to_value(formatters::s2v_f32_percentage()),
             // WET
             wet: FloatParam::new("Wet", 0.5, FloatRange::Linear { min: 0.0, max: 1.0 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("%")
             .with_value_to_string(formatters::v2s_f32_percentage(1))
             .with_string_to_value(formatters::s2v_f32_percentage()),
 
             // DRY
             dry: FloatParam::new("Dry", 1.0, FloatRange::Linear { min: 0.0, max: 1.0 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("%")
             .with_value_to_string(formatters::v2s_f32_percentage(1))
             .with_string_to_value(formatters::s2v_f32_percentage()),
@@ -163,27 +195,71 @@ impl Plugin for ChorusPlugin {
         // 1. outer loop iterates block-size times
         // 2. inner loop iterates channel-size times. 
 
-        for (i, channel_samples) in buffer.iter_samples().enumerate() {
+        for (_, block) in buffer.iter_blocks(MAX_BLOCK_SIZE) {
+            let block_len = block.samples();
 
-            let depth = self.params.depth.smoothed.next();
-            let rate = self.params.rate.smoothed.next();
-            let delay_ms = self.params.delay_ms.smoothed.next();
-            let feedback = self.params.feedback.smoothed.next();
-            let wet = self.params.wet.smoothed.next();
-            let dry = self.params.dry.smoothed.next();
+            let rate = &mut self.scr_buf.rate;
+            self.params.rate.smoothed.next_block(rate, block_len);
 
-            self.chorus.set_params(self.sample_rate, delay_ms, feedback, depth, rate, wet, dry);
+            let depth = &mut self.scr_buf.depth;
+            self.params.depth.smoothed.next_block(depth, block_len);
 
-            for (num, sample) in channel_samples.into_iter().enumerate() {
-                if num == 0 {
-                    *sample = self.chorus.process_left(*sample);
-                    *sample = self.output_hpf.process_left(*sample);
-                } else {
-                    *sample = self.chorus.process_right(*sample);
-                    *sample = self.output_hpf.process_right(*sample);
+            let delay = &mut self.scr_buf.delay;
+            self.params.delay_ms.smoothed.next_block(delay, block_len);
+
+            let feedback = &mut self.scr_buf.feedback;
+            self.params.feedback.smoothed.next_block(feedback, block_len);
+
+            let wet = &mut self.scr_buf.wet;
+            self.params.wet.smoothed.next_block(wet, block_len);
+
+            let dry = &mut self.scr_buf.dry;
+            self.params.dry.smoothed.next_block(dry, block_len);
+
+            for (channel_idx, block_channel) in block.into_iter().enumerate() {
+
+                for (sample_idx, sample) in block_channel.into_iter().enumerate() {
+
+                    self.chorus.set_params(
+                        self.sample_rate, 
+                        unsafe { *delay.get_unchecked(sample_idx)}, 
+                        unsafe { *feedback.get_unchecked(sample_idx)},
+                        unsafe { *depth.get_unchecked(sample_idx)},
+                        unsafe { *rate.get_unchecked(sample_idx)},
+                        unsafe { *wet.get_unchecked(sample_idx)},
+                        unsafe { *dry.get_unchecked(sample_idx)});
+                    
+                    if channel_idx == 0 {
+                        *sample = self.chorus.process_left(*sample);
+                        *sample = self.output_hpf.process_left(*sample);
+                    } else {
+                        *sample = self.chorus.process_right(*sample);
+                        *sample = self.output_hpf.process_right(*sample);
+                    }
                 }
             }
         }
+        // for (i, channel_samples) in buffer.iter_samples().enumerate() {
+
+        //     let depth = self.params.depth.smoothed.next();
+        //     let rate = self.params.rate.smoothed.next();
+        //     let delay_ms = self.params.delay_ms.smoothed.next();
+        //     let feedback = self.params.feedback.smoothed.next();
+        //     let wet = self.params.wet.smoothed.next();
+        //     let dry = self.params.dry.smoothed.next();
+
+        //     self.chorus.set_params(self.sample_rate, delay_ms, feedback, depth, rate, wet, dry);
+
+        //     for (num, sample) in channel_samples.into_iter().enumerate() {
+        //         if num == 0 {
+        //             *sample = self.chorus.process_left(*sample);
+        //             *sample = self.output_hpf.process_left(*sample);
+        //         } else {
+        //             *sample = self.chorus.process_right(*sample);
+        //             *sample = self.output_hpf.process_right(*sample);
+        //         }
+        //     }
+        // }
 
         ProcessStatus::Normal
     }

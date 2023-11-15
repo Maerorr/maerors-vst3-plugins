@@ -118,7 +118,7 @@ impl Chorus {
 
 
     pub fn process_left(&mut self, x: f32) -> f32 {
-        let xx = x ;//+ self.wet * self.feedback * self.left_feedback_buffer.get(self.delay_samples).unwrap();
+        let xx = x + self.wet * self.feedback * self.left_feedback_buffer.get(0).unwrap();
 
         let offset1 = (self.left_lfos[0].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
         let offset2 = (self.left_lfos[1].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
@@ -133,7 +133,7 @@ impl Chorus {
         delayed_signal += self.left_delays[1].process_sample(xx, self.delay_samples_f32 + offset2);
         delayed_signal += self.left_delays[2].process_sample(xx, self.delay_samples_f32 + offset3);
 
-        self.left_feedback_buffer.rotate_right(1);
+        //self.left_feedback_buffer.rotate_right(1);
         self.left_feedback_buffer[0] = delayed_signal / 3.0;
 
         let mut left_out = 
@@ -148,7 +148,7 @@ impl Chorus {
     }
 
     pub fn process_right(&mut self, x: f32) -> f32 {
-        let xx = x ;//+ self.wet * self.feedback * self.right_feedback_buffer.get(self.delay_samples_f32).unwrap();
+        let xx = x + self.wet * self.feedback * self.right_feedback_buffer.get(0).unwrap();
 
         let offset1 = (self.right_lfos[0].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
         let offset2 = (self.right_lfos[1].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
@@ -163,7 +163,7 @@ impl Chorus {
         delayed_signal += self.right_delays[1].process_sample(xx, self.delay_samples_f32 + offset2);
         delayed_signal += self.right_delays[2].process_sample(xx, self.delay_samples_f32 + offset3);
 
-        self.right_feedback_buffer.rotate_right(1);
+        //self.right_feedback_buffer.rotate_right(1);
         self.right_feedback_buffer[0] = delayed_signal / 3.0;
 
         let mut right_out = self.dry * x 
