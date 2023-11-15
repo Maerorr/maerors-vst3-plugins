@@ -1,4 +1,6 @@
-# All my VST3 plugins.
+<p align=”center”>
+    <img src="images/banner.png" alt="banner" height="250" height="auto">
+</p>
 
 In this repository you can find all of my VST3 plugins written in Rust using the [nih-plug](https://github.com/robbert-vdh/nih-plug) framework and the [Vizia](https://github.com/vizia/vizia) UI library.
 
