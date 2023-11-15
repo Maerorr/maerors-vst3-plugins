@@ -59,24 +59,29 @@ impl Default for FlangerPluginParams {
             editor_state: editor::default_state(),
 
             depth: FloatParam::new("Depth", 0.1, FloatRange::Linear { min: 0.0, max: 1.0 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("%")
             .with_value_to_string(formatters::v2s_f32_percentage(2)),
 
             rate: FloatParam::new("Rate", 0.5, FloatRange::Skewed { min: 0.02, max: 10.0, factor: 0.3 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("Hz")
             .with_value_to_string(formatters::v2s_f32_rounded(2)),
 
             feedback: FloatParam::new("Feedback", 0.0, FloatRange::Linear { min: 0.0, max: 0.999 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("%")
             .with_value_to_string(formatters::v2s_f32_percentage(2))
             .with_string_to_value(formatters::s2v_f32_percentage()),
 
             wet: FloatParam::new("Wet", 0.0, FloatRange::Linear { min: 0.0, max: 1.0 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("%")
             .with_value_to_string(formatters::v2s_f32_percentage(2))
             .with_string_to_value(formatters::s2v_f32_percentage()),
 
             dry: FloatParam::new("Dry", 1.0, FloatRange::Linear { min: 0.0, max: 1.0 })
+            .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("%")
             .with_value_to_string(formatters::v2s_f32_percentage(2))
             .with_string_to_value(formatters::s2v_f32_percentage()),
