@@ -1,8 +1,8 @@
 [package]
-name = "phaser"
+name = "maeror_phaser"
 version = "0.1.0"
 edition = "2021"
-authors = ["236587&236598"]
+authors = ["Maeror"]
 license = " "
 homepage = " "
 description = "simple phaser plugin"

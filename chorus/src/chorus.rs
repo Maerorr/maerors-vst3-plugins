@@ -12,7 +12,7 @@ pub struct Chorus {
     left_feedback_buffer: Box<VecDeque<f32>>,
     right_feedback_buffer: Box<VecDeque<f32>>,
     delay_ms: f32,
-    delay_samples: usize,
+    delay_samples_f32: f32,
     feedback: f32,
     depth: f32,
     sample_rate: f32,
@@ -28,11 +28,11 @@ impl Chorus {
         let mut left_lfos: Vec<lfo::LFO> = Vec::with_capacity(5);
         let mut right_lfos: Vec<lfo::LFO> = Vec::with_capacity(5);
 
-        let delay_samples: usize = ((delay_ms as f32 / 1000.0) * sample_rate).round() as usize;
+        let delay_samples_f32: f32 = (delay_ms as f32 / 1000.0) * sample_rate as f32;
 
         for i in 0..5 {
-            left_delays.push(Delay::new(sample_rate as usize, delay_samples, 0.0));
-            right_delays.push(Delay::new(sample_rate as usize, delay_samples, 0.0));
+            left_delays.push(Delay::new(sample_rate as usize, delay_samples_f32, 0.0));
+            right_delays.push(Delay::new(sample_rate as usize, delay_samples_f32, 0.0));
             left_lfos.push(lfo::LFO::new_random_phase(sample_rate, rate));
             right_lfos.push(lfo::LFO::new_random_phase(sample_rate, rate));
         }
@@ -60,7 +60,7 @@ impl Chorus {
             wet: wet,
             dry: dry,
             delay_ms,
-            delay_samples: delay_samples,
+            delay_samples_f32,
         }
     }
 
@@ -73,13 +73,13 @@ impl Chorus {
             lfor.sample_rate = sample_rate;
         }
 
-        let delay_samples: usize = ((delay as f32 / 1000.0) * self.sample_rate).round() as usize;
+        let delay_samples_f32: f32 = (delay as f32 / 1000.0) * self.sample_rate as f32;
 
         for d in self.left_delays.iter_mut() {
-            d.delay = delay_samples;
+            d.delay = delay_samples_f32;
         }
         for d in self.right_delays.iter_mut() {
-            d.delay = delay_samples;
+            d.delay = delay_samples_f32;
         }
 
         self.feedback = feedback;
@@ -98,7 +98,7 @@ impl Chorus {
         self.wet = wet;
         self.dry = dry;
         self.delay_ms = delay;
-        self.delay_samples = delay_samples;
+        self.delay_samples_f32 = delay_samples_f32;
     }
 
     pub fn resize_buffers(&mut self, sample_rate: f32) {
@@ -118,20 +118,20 @@ impl Chorus {
 
 
     pub fn process_left(&mut self, x: f32) -> f32 {
-        let xx = x + self.wet * self.feedback * self.left_feedback_buffer.get(self.delay_samples).unwrap();
+        let xx = x ;//+ self.wet * self.feedback * self.left_feedback_buffer.get(self.delay_samples).unwrap();
 
-        let offset1 = ((self.left_lfos[0].next_value() * self.calc_depth / 2.0).round() as i32).clamp(-(self.delay_samples as i32) + 1 , self.delay_samples as i32 - 1);
-        let offset2 = ((self.left_lfos[1].next_value() * self.calc_depth / 2.0).round() as i32).clamp(-(self.delay_samples as i32) + 1 , self.delay_samples as i32 - 1);
-        let offset3 = ((self.left_lfos[2].next_value() * self.calc_depth / 2.0).round() as i32).clamp(-(self.delay_samples as i32) + 1 , self.delay_samples as i32 - 1);
+        let offset1 = (self.left_lfos[0].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
+        let offset2 = (self.left_lfos[1].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
+        let offset3 = (self.left_lfos[2].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
 
         self.left_lfos[0].update_lfo();
         self.left_lfos[1].update_lfo();
         self.left_lfos[2].update_lfo();
 
         let mut delayed_signal = 0.0;
-        delayed_signal += self.left_delays[0].process_sample(xx, (self.delay_samples as i32 + offset1) as usize);
-        delayed_signal += self.left_delays[1].process_sample(xx, (self.delay_samples as i32 + offset2) as usize);
-        delayed_signal += self.left_delays[2].process_sample(xx, (self.delay_samples as i32 + offset3) as usize);
+        delayed_signal += self.left_delays[0].process_sample(xx, self.delay_samples_f32 + offset1);
+        delayed_signal += self.left_delays[1].process_sample(xx, self.delay_samples_f32 + offset2);
+        delayed_signal += self.left_delays[2].process_sample(xx, self.delay_samples_f32 + offset3);
 
         self.left_feedback_buffer.rotate_right(1);
         self.left_feedback_buffer[0] = delayed_signal / 3.0;
@@ -148,20 +148,20 @@ impl Chorus {
     }
 
     pub fn process_right(&mut self, x: f32) -> f32 {
-        let xx = x + self.wet * self.feedback * self.right_feedback_buffer.get(self.delay_samples).unwrap();
+        let xx = x ;//+ self.wet * self.feedback * self.right_feedback_buffer.get(self.delay_samples_f32).unwrap();
 
-        let offset1 = ((self.right_lfos[0].next_value() * self.calc_depth / 2.0).round() as i32).clamp(-(self.delay_samples as i32) + 1 , self.delay_samples as i32 - 1);
-        let offset2 = ((self.right_lfos[1].next_value() * self.calc_depth / 2.0).round() as i32).clamp(-(self.delay_samples as i32) + 1 , self.delay_samples as i32 - 1);
-        let offset3 = ((self.right_lfos[2].next_value() * self.calc_depth / 2.0).round() as i32).clamp(-(self.delay_samples as i32) + 1 , self.delay_samples as i32 - 1);
+        let offset1 = (self.right_lfos[0].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
+        let offset2 = (self.right_lfos[1].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
+        let offset3 = (self.right_lfos[2].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
 
         self.right_lfos[0].update_lfo();
         self.right_lfos[1].update_lfo();
         self.right_lfos[2].update_lfo();
 
         let mut delayed_signal = 0.0;
-        delayed_signal += self.right_delays[0].process_sample(xx, (self.delay_samples as i32 + offset1) as usize);
-        delayed_signal += self.right_delays[1].process_sample(xx, (self.delay_samples as i32 + offset2) as usize);
-        delayed_signal += self.right_delays[2].process_sample(xx, (self.delay_samples as i32 + offset3) as usize);
+        delayed_signal += self.right_delays[0].process_sample(xx, self.delay_samples_f32 + offset1);
+        delayed_signal += self.right_delays[1].process_sample(xx, self.delay_samples_f32 + offset2);
+        delayed_signal += self.right_delays[2].process_sample(xx, self.delay_samples_f32 + offset3);
 
         self.right_feedback_buffer.rotate_right(1);
         self.right_feedback_buffer[0] = delayed_signal / 3.0;
