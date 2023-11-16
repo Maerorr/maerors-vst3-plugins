@@ -96,10 +96,10 @@ impl Flanger {
         let lfo_value = if self.use_stereo_lfo {
             self.right_lfo.update_lfo();
             self.left_lfo.update_lfo();
-            self.right_lfo.next_value_range(0.0..1.0)
+            self.right_lfo.next_value_range(0.05..1.0)
         } else {
             self.left_lfo.update_lfo();
-            self.left_lfo.next_value_range(0.0..1.0)
+            self.left_lfo.next_value_range(0.05..1.0)
         };
 
         let xx = x + self.right_feedback_buffer * self.feedback;
