@@ -32,28 +32,22 @@ On Windows the vst3 plugin folder is usually `C:\Program Files\Common Files\VST3
 ### Chorus
 Simple chorus plugin that adds 3 voices (technically 6, because it's stereo) to the input signal using interpolated delay lines.
 
-<p align="center">
-  <a href="">
+<p align="center" width="100%">
     <img src="images/chorus.png" alt="chorus" width="400">
-  </a>
 </p>
 
 ### Flanger
 Flanger/Vibrato plugin using interpolated delay lines. To achieve vibrato effect set the feedback to 0%, wet to 100% and dry to 0%.
 
-<p align="center">
-  <a>
+<p align="center" width="100%">
     <img src="images/flanger.png" alt="flanger" width="400">
-  </a>
 </p>
 
 ### Phaser
 3-stage stereo phaser plugin using first order allpass filters.
 
-<p align="center">
-  <a>
+<p align="center" width="100%">
     <img src="images/phaser.png" alt="phaser" width="400">
-  </a>
 </p>
 
 ### Phase Disperser
@@ -62,10 +56,8 @@ Multiple Allpass filters in series create a phase dispersion effect. A very simp
 ### Biquad Filter
 A simple biquad filter with a first and second order lowpass, highpass and allpass, and bandpass, notch, low/high shelf and a peak options.
 
-<p align="center">
-  <a>
+<p align="center" width="100%">
     <img src="images/biquad.png" alt="biquad" width="400">
-  </a>
 </p>
 
 ## Note
