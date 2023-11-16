@@ -32,17 +32,24 @@ On Windows the vst3 plugin folder is usually `C:\Program Files\Common Files\VST3
 ### Chorus
 Simple chorus plugin that adds 3 voices (technically 6, because it's stereo) to the input signal using interpolated delay lines.
 
-<img src="images/chorus.png" alt="chorus" width="400" height="auto">
+<p align=”center”>
+    <img src="images/chorus.png" alt="chorus" width="400">
+</p>
 
 ### Flanger
 Flanger/Vibrato plugin using interpolated delay lines. To achieve vibrato effect set the feedback to 0%, wet to 100% and dry to 0%.
 
-<img src="images/flanger.png" alt="flanger" width="400" height="auto">
+<p align=”center”>
+    <img src="images/flanger.png" alt="flanger" width="400">
+</p>
 
 ### Phaser
 3-stage stereo phaser plugin using first order allpass filters.
 
-<img src="images/phaser.png" alt="phaser" width="400" height="auto">
+<p align=”center”>
+    <img src="images/phaser.png" alt="phaser" width="400">
+</p>
+
 
 ### Phase Disperser
 Multiple Allpass filters in series create a phase dispersion effect. A very simplified description is that through phase shifting it delays lower frequencies creating the unique liquid-ish sounding effect.
@@ -50,7 +57,9 @@ Multiple Allpass filters in series create a phase dispersion effect. A very simp
 ### Biquad Filter
 A simple biquad filter with a first and second order lowpass, highpass and allpass, and bandpass, notch, low/high shelf and a peak options.
 
-<img src="images/biquad.png" alt="biquad" width="400" height="auto">
+<p align=”center”>
+    <img src="images/biquad.png" alt="biquad" width="400">
+</p>
 
 ## Note
 These plugins are not production-ready. They are written as a side-project to learn how DSP effects work. I test my plugins myself and there is always a chance that with certain parameter combinations the plugin will start outputting constant DC signal or very loud signal, because of an infinite feedback loop or simply a mistake in the code. If such a thing happens, open an issue and describe the problem and parameter values that cause problems.
