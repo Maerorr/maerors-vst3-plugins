@@ -1,5 +1,5 @@
 <p align=”center”>
-    <img src="images/banner.png" alt="banner">
+    <img src="images/banner-transparent.png" alt="banner">
 </p>
 
 In this repository you can find all of my VST3 plugins written in Rust using the [nih-plug](https://github.com/robbert-vdh/nih-plug) framework and the [Vizia](https://github.com/vizia/vizia) UI library.
@@ -23,19 +23,14 @@ Current plugin names are as follows:
 
 If i forget to update this file, the plugin name can be found in the `bundler.toml` file in each of the folders.
 
-Build files will be in the `target/bundled/[plugin-name.vs3]` folder. You can then find the proper version of .vst3 file there and copy it to your VST3 plugin folder.
+Build files will be in the `target/bundled/[plugin-name.vst3]` folder. You can then find the proper version of .vst3 file there and copy it to your VST3 plugin folder.
 
 On Windows the vst3 plugin folder is usually `C:\Program Files\Common Files\VST3` or `C:\Program Files (x86)\Common Files\VST3`.
 
 ## Descriptions
 
-### Biquad Filter
-A simple biquad filter with a first and second order lowpass, highpass and allpass, and bandpass, notch, low/high shelf and a peak options.
-
-<img src="images/biquad.png" alt="biquad" width="400" height="auto">
-
 ### Chorus
-Simple chorus plugin that adds 3 voices to the input signal using interpolated delay lines.
+Simple chorus plugin that adds 3 voices (technically 6, because it's stereo) to the input signal using interpolated delay lines.
 
 <img src="images/chorus.png" alt="chorus" width="400" height="auto">
 
@@ -51,6 +46,11 @@ Flanger/Vibrato plugin using interpolated delay lines. To achieve vibrato effect
 
 ### Phase Disperser
 Multiple Allpass filters in series create a phase dispersion effect. A very simplified description is that through phase shifting it delays lower frequencies creating the unique liquid-ish sounding effect.
+
+### Biquad Filter
+A simple biquad filter with a first and second order lowpass, highpass and allpass, and bandpass, notch, low/high shelf and a peak options.
+
+<img src="images/biquad.png" alt="biquad" width="400" height="auto">
 
 ## Note
 These plugins are not production-ready. They are written as a side-project to learn how DSP effects work. I test my plugins myself and there is always a chance that with certain parameter combinations the plugin will start outputting constant DC signal or very loud signal, because of an infinite feedback loop or simply a mistake in the code. If such a thing happens, open an issue and describe the problem and parameter values that cause problems.
