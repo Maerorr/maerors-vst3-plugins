@@ -25,7 +25,7 @@ const STYLE: &str = r#"
 label {
     child-space: 1s;
     font-size: 18;
-    color: #9DEEDA;
+    color: #F3F09E;
 }
 
 .header-label {
@@ -38,7 +38,7 @@ knob {
 }
 
 knob .track {
-    background-color: #54deb2;
+    background-color: #EFE932;
 }
 
 .param-label {
@@ -46,7 +46,7 @@ knob .track {
 }
 
 .tick {
-    background-color: #54deb2;
+    background-color: #EFE932;
 }
 
 .main-gui {
@@ -63,7 +63,7 @@ struct Data {
 impl Model for Data {}
 
 pub(crate) fn default_state() -> Arc<ViziaState> {
-    ViziaState::new(|| (350, 350))
+    ViziaState::new(|| (350, 225))
 }
 
 pub(crate) fn create(
@@ -83,18 +83,38 @@ pub(crate) fn create(
 
             ResizeHandle::new(cx);
             VStack::new(cx, |cx| {
-                Label::new(cx, "MAEROR'S Mid/Side Mixer")
+                Label::new(cx, "Maeror's MSLR")
                 .font_family(vec![FamilyOwned::Name(String::from(COMFORTAA))])
                 .font_size(24.0)
                 .height(Pixels(75.0))
                 .child_top(Stretch(1.0))
                 .child_bottom(Stretch(1.0))
                 .class("header-label");
-                
-                HStack::new(cx, |cx| {
-                    ParamKnob::new(cx, Data::plugin_data, |params| &params.mid_mix, false);
-                    ParamKnob::new(cx, Data::plugin_data, |params| &params.side_mix, false);
-                }).col_between(Pixels(15.0));
+
+                Binding::new(cx, Data::plugin_data.map(|val| val.ms_lr.value()), |cx, lens| {
+                    let value = lens.get(cx);
+                    if value {
+                        HStack::new(cx, |cx| {
+                            ParamKnob::new(cx, Data::plugin_data, |params| &params.mid_mix, false);
+
+                            ParamKnob::new(cx, Data::plugin_data, |params| &params.side_mix, false);
+
+                            ParamButton::new(cx, Data::plugin_data, |params| &params.ms_lr)
+                            .height(Pixels(30.0))
+                            .space(Stretch(1.0))
+                            .bottom(Percentage(51.0));
+                        }).col_between(Pixels(15.0));
+                    } else {
+                        HStack::new(cx, |cx| {
+                            ParamKnob::new(cx, Data::plugin_data, |params| &params.left_right_mix, true);
+                            ParamButton::new(cx, Data::plugin_data, |params| &params.ms_lr)
+                            .height(Pixels(30.0))
+                            .space(Stretch(1.0))
+                            .bottom(Percentage(51.0))
+                            .left(Percentage(28.5));
+                        }).col_between(Pixels(15.0));
+                    }
+                });                
                 
             }).row_between(Pixels(0.0))
             .child_left(Stretch(1.0))

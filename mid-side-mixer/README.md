@@ -1,9 +1,9 @@
-# [Maeror's Mid/Side Mixer]
+# [Maeror's MSLR]
 
 ## Building
 
-After installing [Rust](https://rustup.rs/), you can compile mid-side as follows:
+After installing [Rust](https://rustup.rs/), you can compile Maeror's MSLR as follows:
 
 ```shell
-cargo xtask bundle PLUGIN_NAME --release
+cargo xtask bundle mid-side --release
 ```

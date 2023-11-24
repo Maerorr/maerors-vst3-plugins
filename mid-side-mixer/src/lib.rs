@@ -24,6 +24,12 @@ struct PluginParams {
 
     #[id = "side-mix"]
     side_mix: FloatParam,
+
+    #[id = "ms-lr"]
+    ms_lr: BoolParam,
+
+    #[id = "left right mix"]
+    left_right_mix: FloatParam,
 }
 
 impl Default for EffectPlugin {
@@ -41,21 +47,28 @@ impl Default for PluginParams {
         Self {
             editor_state: editor::default_state(),
 
-            mid_mix: FloatParam::new("Mid Mix", 0.0, FloatRange::Linear { min: 0.0, max: 1.0 })
-            .with_smoother(SmoothingStyle::Linear(1.0))
+            mid_mix: FloatParam::new("Mid Mix", 1., FloatRange::Linear { min: 0.0, max: 1.0 })
+            .with_smoother(SmoothingStyle::Linear(5.0))
             .with_value_to_string(formatters::v2s_f32_percentage(2))
             .with_string_to_value(formatters::s2v_f32_percentage()),
 
-            side_mix: FloatParam::new("Side Mix", 0.0, FloatRange::Linear { min: 0.0, max: 1.0 })
-            .with_smoother(SmoothingStyle::Linear(1.0))
+            side_mix: FloatParam::new("Side Mix", 1., FloatRange::Linear { min: 0.0, max: 1.0 })
+            .with_smoother(SmoothingStyle::Linear(5.0))
             .with_value_to_string(formatters::v2s_f32_percentage(2))
             .with_string_to_value(formatters::s2v_f32_percentage()),
+
+            ms_lr: BoolParam::new("Mid/Side", true),
+
+            left_right_mix: FloatParam::new("Left/Right", 0.0, FloatRange::Linear { min: -1.0, max: 1.0 })
+            .with_smoother(SmoothingStyle::Linear(5.0))
+            .with_value_to_string(formatters::v2s_f32_panning())
+            .with_string_to_value(formatters::s2v_f32_panning()),
         }
     }
 }
 
 impl Plugin for EffectPlugin {
-    const NAME: &'static str = "Maeror's Mid-Side Mixer";
+    const NAME: &'static str = "Maeror's MSLR";
     const VENDOR: &'static str = "Maeror";
     const URL: &'static str = "";
     const EMAIL: &'static str = "none";
@@ -116,7 +129,10 @@ impl Plugin for EffectPlugin {
         for mut channel_samples in buffer.iter_samples() {
             let mid_mix = self.params.mid_mix.smoothed.next();
             let side_mix = self.params.side_mix.smoothed.next();
-            self.midside_mixer.set_params(mid_mix, side_mix);
+            let left_right_mix = self.params.left_right_mix.smoothed.next();
+            let is_mid_side = self.params.ms_lr.value();
+
+            self.midside_mixer.set_params(mid_mix, side_mix, left_right_mix, is_mid_side);
 
             unsafe {
                 let l = channel_samples.get_unchecked_mut(0).clone();
