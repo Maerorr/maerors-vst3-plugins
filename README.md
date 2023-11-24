@@ -66,7 +66,7 @@ r_side = (right - left) * 0.5;
 ```
 
 <p align="center" width="100%">
-    <img src="images/mslr.png" alt="mslr" width="550">
+    <img src="images/mslr.png" alt="mslr" width="750">
 </p>
 
 ### Biquad Filter
