@@ -53,6 +53,22 @@ Flanger/Vibrato plugin using interpolated delay lines. To achieve vibrato effect
 ### Phase Disperser
 Multiple Allpass filters in series create a phase dispersion effect. A very simplified description is that through phase shifting it delays lower frequencies creating the unique liquid-ish sounding effect.
 
+### MSLR (Mid Side Left Right)
+This effect has two functions:
+- adjusting volume of mid and side channels of a signal
+- simple panning of a signal
+
+Mid/side encoding is done using the following formulas:
+```
+mid = (left + right) * 0.5;
+l_side = (left - right) * 0.5;
+r_side = (right - left) * 0.5;
+```
+
+<p align="center" width="100%">
+    <img src="images/mslr.png" alt="mslr" width="550">
+</p>
+
 ### Biquad Filter
 A simple biquad filter with a first and second order lowpass, highpass and allpass, and bandpass, notch, low/high shelf and a peak options.
 
