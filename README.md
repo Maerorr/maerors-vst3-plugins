@@ -19,6 +19,7 @@ Current plugin names are as follows:
 - chorus
 - flanger
 - disperser
+- mslr
 - phaser
 
 If i forget to update this file, the plugin name can be found in the `bundler.toml` file in each of the folders.
