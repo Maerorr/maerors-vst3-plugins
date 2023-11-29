@@ -78,10 +78,13 @@ impl Flanger {
     }
 
     pub fn process_left(&mut self, x: f32) -> f32 {
+        self.right_lfo.update_lfo();
+        self.left_lfo.update_lfo();
+
         let xx = x + self.left_feedback_buffer * self.feedback;
         let delayed_signal = self.left_delay.process_sample(
             xx, 
-            self.left_lfo.next_value_range(0.0..1.0) * self.calculated_depth );
+            self.left_lfo.next_value_range(0.05..1.0) * self.calculated_depth );
 
         self.left_feedback_buffer = delayed_signal;
 
@@ -94,11 +97,8 @@ impl Flanger {
 
     pub fn process_right(&mut self, x: f32) -> f32 {
         let lfo_value = if self.use_stereo_lfo {
-            self.right_lfo.update_lfo();
-            self.left_lfo.update_lfo();
             self.right_lfo.next_value_range(0.05..1.0)
         } else {
-            self.left_lfo.update_lfo();
             self.left_lfo.next_value_range(0.05..1.0)
         };
 

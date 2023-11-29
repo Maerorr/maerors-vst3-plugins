@@ -6,7 +6,6 @@ use nih_plug_vizia::vizia::prelude::*;
 use nih_plug_vizia::widgets::*;
 use nih_plug_vizia::{assets, create_vizia_editor, ViziaState, ViziaTheming};
 
-
 use crate::FlangerPluginParams;
 
 mod param_knob;
