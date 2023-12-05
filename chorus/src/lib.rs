@@ -18,8 +18,7 @@ struct ScratchBuffer {
     depth: [f32; MAX_BLOCK_SIZE],
     delay: [f32; MAX_BLOCK_SIZE],
     feedback: [f32; MAX_BLOCK_SIZE],
-    dry: [f32; MAX_BLOCK_SIZE],
-    wet: [f32; MAX_BLOCK_SIZE],
+    mix: [f32; MAX_BLOCK_SIZE],
 }
 
 impl Default for ScratchBuffer {
@@ -29,8 +28,7 @@ impl Default for ScratchBuffer {
             depth: [0.0; MAX_BLOCK_SIZE],
             delay: [0.0; MAX_BLOCK_SIZE],
             feedback: [0.0; MAX_BLOCK_SIZE],
-            dry: [0.0; MAX_BLOCK_SIZE],
-            wet: [0.0; MAX_BLOCK_SIZE],
+            mix: [0.0; MAX_BLOCK_SIZE],
         }
     }
 }
@@ -57,10 +55,10 @@ struct ChorusParams {
     pub delay_ms: FloatParam,
     #[id = "feedback"]
     pub feedback: FloatParam,
-    #[id = "wet"]
-    pub wet: FloatParam,
-    #[id = "dry"]
-    pub dry: FloatParam,
+    #[id = "mix"]
+    pub mix: FloatParam,
+    #[id = "mono"]
+    pub mono: BoolParam,
 
     #[id = "credits"]
     pub credits: BoolParam,
@@ -108,18 +106,15 @@ impl Default for ChorusParams {
             .with_value_to_string(formatters::v2s_f32_percentage(1))
             .with_string_to_value(formatters::s2v_f32_percentage()),
             // WET
-            wet: FloatParam::new("Wet", 0.5, FloatRange::Linear { min: 0.0, max: 1.0 })
+            mix: FloatParam::new("Mix", 0.5, FloatRange::Linear { min: 0.0, max: 1.0 })
             .with_smoother(SmoothingStyle::Linear(15.0))
             .with_unit("%")
             .with_value_to_string(formatters::v2s_f32_percentage(1))
             .with_string_to_value(formatters::s2v_f32_percentage()),
 
-            // DRY
-            dry: FloatParam::new("Dry", 1.0, FloatRange::Linear { min: 0.0, max: 1.0 })
-            .with_smoother(SmoothingStyle::Linear(15.0))
-            .with_unit("%")
-            .with_value_to_string(formatters::v2s_f32_percentage(1))
-            .with_string_to_value(formatters::s2v_f32_percentage()),
+            // MONO
+            mono: BoolParam::new("Mono", false),
+
 
             // CREDITS
             credits: BoolParam::new("Credits", false),
@@ -210,11 +205,10 @@ impl Plugin for ChorusPlugin {
             let feedback = &mut self.scr_buf.feedback;
             self.params.feedback.smoothed.next_block(feedback, block_len);
 
-            let wet = &mut self.scr_buf.wet;
-            self.params.wet.smoothed.next_block(wet, block_len);
+            let mix = &mut self.scr_buf.mix;
+            self.params.mix.smoothed.next_block(mix, block_len);
 
-            let dry = &mut self.scr_buf.dry;
-            self.params.dry.smoothed.next_block(dry, block_len);
+            let mono = self.params.mono.value();
 
             for (channel_idx, block_channel) in block.into_iter().enumerate() {
 
@@ -226,8 +220,8 @@ impl Plugin for ChorusPlugin {
                         unsafe { *feedback.get_unchecked(sample_idx)},
                         unsafe { *depth.get_unchecked(sample_idx)},
                         unsafe { *rate.get_unchecked(sample_idx)},
-                        unsafe { *wet.get_unchecked(sample_idx)},
-                        unsafe { *dry.get_unchecked(sample_idx)});
+                        unsafe { *mix.get_unchecked(sample_idx)},
+                        mono,);
                     
                     if channel_idx == 0 {
                         *sample = self.chorus.process_left(*sample);
@@ -236,6 +230,7 @@ impl Plugin for ChorusPlugin {
                         *sample = self.chorus.process_right(*sample);
                         *sample = self.output_hpf.process_right(*sample);
                     }
+                    self.chorus.update_modulators();
                 }
             }
         }

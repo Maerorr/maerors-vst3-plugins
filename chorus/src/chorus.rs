@@ -17,8 +17,30 @@ pub struct Chorus {
     depth: f32,
     sample_rate: f32,
     calc_depth: f32,
+    mono: bool,
     wet: f32,
     dry: f32,
+
+    // struct variables not to allocate in process()
+    lx: f32,
+    llfo1: f32,
+    llfo2: f32,
+    llfo3: f32,
+    loffset1: f32,
+    loffset2: f32,
+    loffset3: f32,
+    ldelayed_signal: f32,
+    left_out: f32,
+
+    rx: f32,
+    rlfo1: f32,
+    rlfo2: f32,
+    rlfo3: f32,
+    roffset1: f32,
+    roffset2: f32,
+    roffset3: f32,
+    rdelayed_signal: f32,
+    right_out: f32,
 }
 
 impl Chorus {
@@ -59,12 +81,31 @@ impl Chorus {
             calc_depth: 0.0,
             wet: wet,
             dry: dry,
+            mono: false,
             delay_ms,
             delay_samples_f32,
+            lx: 0.0,
+            llfo1: 0.0,
+            llfo2: 0.0,
+            llfo3: 0.0,
+            loffset1: 0.0,
+            loffset2: 0.0,
+            loffset3: 0.0,
+            ldelayed_signal: 0.0,
+            left_out: 0.0,
+            rx: 0.0,
+            rlfo1: 0.0,
+            rlfo2: 0.0,
+            rlfo3: 0.0,
+            roffset1: 0.0,
+            roffset2: 0.0,
+            roffset3: 0.0,
+            rdelayed_signal: 0.0,
+            right_out: 0.0,
         }
     }
 
-    pub fn set_params(&mut self, sample_rate: f32, delay: f32, feedback: f32, depth: f32, rate: f32, wet: f32, dry: f32) {
+    pub fn set_params(&mut self, sample_rate: f32, delay: f32, feedback: f32, depth: f32, rate: f32, mix: f32, mono: bool) {
         // resize all buffers relying on sample rate
         self.sample_rate = sample_rate;
     
@@ -86,17 +127,15 @@ impl Chorus {
 
         self.depth = depth;
         self.calc_depth = depth / 1000.0 * self.sample_rate;
-        // if self.calc_depth > self.delay_samples as f32 {
-        //     self.calc_depth = self.delay_samples as f32;
-        // }
 
         for (lfol, lfor) in self.left_lfos.iter_mut().zip(self.right_lfos.iter_mut()) {
             lfol.rate = rate;
             lfor.rate = rate;
         }
 
-        self.wet = wet;
-        self.dry = dry;
+        self.wet = mix;
+        self.dry = 1.0 - mix;
+        self.mono = mono;
         self.delay_ms = delay;
         self.delay_samples_f32 = delay_samples_f32;
     }
@@ -118,61 +157,78 @@ impl Chorus {
 
 
     pub fn process_left(&mut self, x: f32) -> f32 {
-        let xx = x + self.wet * self.feedback * self.left_feedback_buffer.get(0).unwrap();
+        self.lx = x + self.wet * self.feedback * self.left_feedback_buffer.get(0).unwrap();
 
-        let offset1 = (self.left_lfos[0].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
-        let offset2 = (self.left_lfos[1].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
-        let offset3 = (self.left_lfos[2].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
+        self.llfo1 = self.left_lfos[0].next_value();
+        self.llfo2 = self.left_lfos[1].next_value();
+        self.llfo3 = self.left_lfos[2].next_value();
 
-        self.left_lfos[0].update_lfo();
-        self.left_lfos[1].update_lfo();
-        self.left_lfos[2].update_lfo();
+        self.loffset1 = (self.llfo1 * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
+        self.loffset2 = (self.llfo2 * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
+        self.loffset3 = (self.llfo3 * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
 
-        let mut delayed_signal = 0.0;
-        delayed_signal += self.left_delays[0].process_sample(xx, self.delay_samples_f32 + offset1);
-        delayed_signal += self.left_delays[1].process_sample(xx, self.delay_samples_f32 + offset2);
-        delayed_signal += self.left_delays[2].process_sample(xx, self.delay_samples_f32 + offset3);
+        self.ldelayed_signal = 0.0;
+        self.ldelayed_signal += self.left_delays[0].process_sample(self.lx, self.delay_samples_f32 + self.loffset1);
+        self.ldelayed_signal += self.left_delays[1].process_sample(self.lx, self.delay_samples_f32 + self.loffset2);
+        self.ldelayed_signal += self.left_delays[2].process_sample(self.lx, self.delay_samples_f32 + self.loffset3);
 
         //self.left_feedback_buffer.rotate_right(1);
-        self.left_feedback_buffer[0] = delayed_signal / 3.0;
+        self.left_feedback_buffer[0] = self.ldelayed_signal / 3.0;
 
-        let mut left_out = 
+        self.left_out = 
         self.dry * x 
-        + self.wet * 1.0/3.0 * delayed_signal;
+        + self.wet * 1.0/3.0 * self.ldelayed_signal;
 
         if self.wet + self.dry > 1.0 {
-            left_out /= self.wet + self.dry;
+            self.left_out /= self.wet + self.dry;
         }
 
-        left_out
+        self.left_out
     }
 
     pub fn process_right(&mut self, x: f32) -> f32 {
-        let xx = x + self.wet * self.feedback * self.right_feedback_buffer.get(0).unwrap();
+        self.rx = x + self.wet * self.feedback * self.right_feedback_buffer.get(0).unwrap();
 
-        let offset1 = (self.right_lfos[0].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
-        let offset2 = (self.right_lfos[1].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
-        let offset3 = (self.right_lfos[2].next_value() * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
+        // mono, meaning mono modulation
+        if self.mono {
+            self.rlfo1 = self.left_lfos[0].next_value();
+            self.rlfo2 = self.left_lfos[1].next_value();
+            self.rlfo3 = self.left_lfos[2].next_value();
+        } else {
+            self.rlfo1 = self.right_lfos[0].next_value();
+            self.rlfo2 = self.right_lfos[1].next_value();
+            self.rlfo3 = self.right_lfos[2].next_value();
+        }
+        
 
-        self.right_lfos[0].update_lfo();
-        self.right_lfos[1].update_lfo();
-        self.right_lfos[2].update_lfo();
+        self.roffset1 = (self.rlfo1 * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
+        self.roffset2 = (self.rlfo2 * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
+        self.roffset3 = (self.rlfo3 * self.calc_depth / 2.0).clamp(-(self.delay_samples_f32) + 1.0 , self.delay_samples_f32 - 1.0);
 
-        let mut delayed_signal = 0.0;
-        delayed_signal += self.right_delays[0].process_sample(xx, self.delay_samples_f32 + offset1);
-        delayed_signal += self.right_delays[1].process_sample(xx, self.delay_samples_f32 + offset2);
-        delayed_signal += self.right_delays[2].process_sample(xx, self.delay_samples_f32 + offset3);
+        self.rdelayed_signal = 0.0;
+        self.rdelayed_signal += self.right_delays[0].process_sample(self.rx, self.delay_samples_f32 + self.roffset1);
+        self.rdelayed_signal += self.right_delays[1].process_sample(self.rx, self.delay_samples_f32 + self.roffset2);
+        self.rdelayed_signal += self.right_delays[2].process_sample(self.rx, self.delay_samples_f32 + self.roffset3);
 
         //self.right_feedback_buffer.rotate_right(1);
-        self.right_feedback_buffer[0] = delayed_signal / 3.0;
+        self.right_feedback_buffer[0] = self.rdelayed_signal / 3.0;
 
-        let mut right_out = self.dry * x 
-        + self.wet * 1.0/3.0 * delayed_signal;
+        self.right_out = self.dry * x 
+        + self.wet * 1.0/3.0 * self.rdelayed_signal;
 
         if self.wet + self.dry > 1.0 {
-            right_out /= self.wet + self.dry;
+            self.right_out /= self.wet + self.dry;
         }
 
-        right_out
+        self.right_out
+    }
+
+    pub fn update_modulators(&mut self) {
+        for lfo in self.left_lfos.iter_mut() {
+            lfo.update_lfo();
+        }
+        for lfo in self.right_lfos.iter_mut() {
+            lfo.update_lfo();
+        }
     }
 }

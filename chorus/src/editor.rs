@@ -94,17 +94,25 @@ pub(crate) fn create(
                 .child_top(Stretch(1.0))
                 .child_bottom(Stretch(1.0))
                 .class("header-label");
+                VStack::new(cx, |cx| {
+                    HStack::new(cx, |cx| {
+                        ParamKnob::new(cx, Data::chorus_data, |params| &params.delay_ms, false);
+                        ParamKnob::new(cx, Data::chorus_data, |params| &params.depth, false);
+                        ParamKnob::new(cx, Data::chorus_data, |params| &params.rate, false);
+                    }).col_between(Pixels(15.0));
+                    HStack::new(cx, |cx| {
+                        ParamKnob::new(cx, Data::chorus_data, |params| &params.feedback, false);
+                        ParamKnob::new(cx, Data::chorus_data, |params| &params.mix, false);
+                        ParamButton::new(cx, Data::chorus_data, |params| &params.mono)
+                            .height(Pixels(30.0))
+                            .space(Stretch(1.0))
+                            .left(Pixels(30.0))
+                            .bottom(Percentage(51.0));
+    
+                    }).col_between(Pixels(15.0));
+
+                }).col_between(Pixels(30.0));
                 
-                HStack::new(cx, |cx| {
-                    ParamKnob::new(cx, Data::chorus_data, |params| &params.delay_ms, false);
-                    ParamKnob::new(cx, Data::chorus_data, |params| &params.depth, false);
-                    ParamKnob::new(cx, Data::chorus_data, |params| &params.rate, false);
-                }).col_between(Pixels(15.0));
-                HStack::new(cx, |cx| {
-                    ParamKnob::new(cx, Data::chorus_data, |params| &params.feedback, false);
-                    ParamKnob::new(cx, Data::chorus_data, |params| &params.dry, false);
-                    ParamKnob::new(cx, Data::chorus_data, |params| &params.wet, false);  
-                }).col_between(Pixels(15.0));
                 
             }).row_between(Pixels(0.0))
             .child_left(Stretch(1.0))
